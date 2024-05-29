@@ -184,4 +184,265 @@ Set 集合的基本概念
 4. null 元素处理:
 
    注意TreeSet不允许包含null元素，而HashSet和LinkedHashSet允许包含一个null元素。
+## java线程实现方式
+1. 继承Thread类
+```java
+class MyThread extends Thread {
+    @Override
+   public void run() {
+       System.out.println("Thread is running...");
+    }
 
+   public static void main(String[] args) {
+      MyThread thread = new MyThread();
+      thread.start();//启动线程
+   }
+}
+```
+      优点：简单直接，适合快速创建线程
+
+      缺点：
+         Java单继承类限制，无法再继承其他类
+         不适合共享资源
+
+
+2. 实现runnable接口
+```java
+class MyRunnable extends Runnable {
+    @Override
+   public void run() {
+       System.out.println("Runnable is running...");
+    }
+
+   public static void main(String[] args) {
+      MyRunnable runnable = new MyRunnable();  
+      Thread thread = new Thread(runnable);
+      thread.start();//启动线程
+   }
+}
+```
+      优点：适合共享资源
+            适合继承其他类
+            更符合面向对象设计
+      缺点：
+         相比thread略复杂
+3. 实现callable接口，并使用future
+```java
+import java.util.concurrent.Callable;
+
+class MyCallable implements Callable<String> {
+   @Override
+   public String call() throws Exception {
+      return "Callable result";
+   }
+
+   public static void main(String[] args) {
+      ExecutorService executor = Executors.newSingleThreadExecutor();
+      MyCallable callable = new MyCallable();
+      Future<String> future = executor.submit(callable);
+      try {
+         String result = future.get();
+         System.out.println("Result: " + result);
+      } catch (InterruptedException | ExecutionException e) {
+         e.printStackTrace();
+      } finally {
+         executor.shutdown();
+      }
+   }
+}
+```
+      优点：可以返回结果或抛出异常
+            适合需要返回计算结果的场景
+      缺点：
+         更复杂，需要处理异常
+4. 使用excutor框架
+```java
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+class MyRunnable implements Runnable {
+   @Override
+   public void run() {
+      System.out.println("Executor is running...");
+   }
+
+   public static void main(String[] args) {
+      ExecutorService executor = Executors.newFixedThreadPool(2);
+      MyRunnable myRunnable = new MyRunnable();
+
+      executor.execute(myRunnable);
+      executor.execute(myRunnable);
+
+      executor.shutdown();
+   }
+}
+
+```
+      优点：提供线程池管理，避免手动创建和管理线程
+            提高资源利用率，适合大规模并发任务
+      缺点：
+         需要理解和掌握excutor框架
+
+## 限流
+Java中，限流是一种用于控制资源访问速率的方法，以防止系统过载或滥用资源，限流的实现方式有很多种，常见的限流算法和工具包括：
+- 计数器算法 （维护一个计数器在固定时间窗口内记录请求数量）
+- 滑动窗口算法（计数器算法改进版本，通过维护多个小窗口的请求计数来更精确控制请求速率）
+- 漏桶算法（通过一个固定容量的桶来控制请求速率，请求以恒定速率从桶中漏出）
+- 令牌桶算法 （通过一个固定容量的桶来存储令牌，请求必须获取到令牌才能通过，令牌以固定速率添加到桶中）
+- 使用现成的限流库，如Guava、RateLimiter或Resilience4j
+## 资源关闭
+资源关闭是为了确保在使用完资源（如文件、数据库连接、网络连接等）后，正确释放它们，以防止资源泄露，java提供了几种方法来确保资源的正确关闭，最常用的是
+`try-with-resources`语句和显式在`finally`中关闭资源
+1. try-with-resources
+  `try-with-resources`语句是Java 7引入的一种自动管理资源的方式。它可以确保任何实现了AutoCloseable接口的资源在语句结束时自动关闭。
+```java
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class TryWithResourcesExample {
+    public static void main(String[] args) {
+        try (BufferedReader br = new BufferedReader(new FileReader("test.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+```
+在上面的示例中，BufferedReader和FileReader在try块结束时会自动关闭，无需显式调用close方法。
+
+2. 显示关闭资源（在finally块中）
+   在Java 7之前，通常在finally块中显式地关闭资源。这样可以确保资源在try块中出现异常时也能正确关闭。
+```java
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class FinallyBlockExample {
+    public static void main(String[] args) {
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader("test.txt"));
+            String line;
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+
+```
+## 内部类
+在Java中，内部类是定义在另一个类内部的类，可以帮助组织代码，使代码更具有可读性和可维护性，同时也提供封装和隐藏的功能，内部类主要分为以下几种类型：
+1. 成员内部类  
+成员内部类是在类内部定义的类，并且没有使用`static`修饰，是外部类的一个成员，可以访问外部类的成员变量和方法。
+
+```java
+public class OuterClass {
+   private String outerField = "Outer Field";
+
+   class InnerClass {
+      public void display() {
+         System.out.println("Accessing outer field:" + outerField);
+      }
+   }
+
+   public static void main(String[] args) {
+      OuterClass outer = new OuterClass();
+      InnerClass innerClass = outer.new InnerClass();
+      innerClass.display();
+   }
+}
+```
+2. 局部内部类  
+ 在方法或者代码块内部定义的类，作用范围仅限于定义它的方法或代码块中
+```java
+public class OuterClass {
+    
+    public void display() {
+        class LocalInnerClass {
+            void print() {
+                System.out.println("This is a local inner class." );
+            }
+        }
+        LocalInnerClass localInnerClass = new LocalInnerClass();
+        localInnerClass.print();
+    }
+
+
+    public static void main(String[] args) {
+        OuterClass outer = new OuterClass();
+        outer.display();
+    }
+}
+```
+3. 匿名内部类  
+是一种没有名字的类，通常用来简化代码，用于实现接口或继承类的场景，匿名内部类必须实现一个接口或继承一个类
+```java
+public class OuterClass {
+
+    public void display() {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("This is an anonymous inner class." );
+            }
+        };
+        runnable.run();
+    }
+
+
+    public static void main(String[] args) {
+        OuterClass outer = new OuterClass();
+        outer.display();
+    }
+}
+```
+4. 静态内部类  
+使用static关键字修饰，可以直接访问外部类的静态成员，但不能直接访问外部类的非静态成员，静态内部类的创建不依赖于外部类的实例
+```java
+public class OuterClass {
+    private static String staticOuterField = "Static outer field";
+    
+    static class StaticNestedClass {
+        public void display() {
+            System.out.println("Accessing static outer field: " + staticOuterField);
+        }
+    }
+
+    
+    public static void main(String[] args) {
+        // 创建不依赖于OuterClass的实例
+       StaticNestedClass nestedClass = new OuterClass.StaticNestedClass();
+        nestedClass.display();
+    }
+}
+```
+### 注意事项
+1. 访问权限
+   - 内部类可以访问其外部类的所有成员变量和方法，包括私有成员
+   - 外部类不能直接访问内部类的成员，必须通过内部类的实例来访问
+2. 创建实例
+   - 成员内部类的实例必须通过外部类的实例创建
+   - 静态内部类的实例可以直接创建，不依赖外部类的实例
+3. 作用域
+   - 局部内部类和匿名内部类的作用域仅限于定义它们的方法or代码块
+4. 内存管理
+   - 内部类持有外部类的引用，可能会导致内存泄漏，设计时需要避免长生命周期的内部类持有短生命周期的外部类引用
+5. 可读性和维护性
+   - 使用内部类可以提高代码的可读性和维护性，但是滥用内部类可能会导致代码复杂化
