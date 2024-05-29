@@ -8,7 +8,6 @@ public class Operation {
     private double strNumberB;
 
     public double getResult() {
-        double result = 0;
-        return result;
+        return strNumberA + strNumberB;
     }
 }
