@@ -10,7 +10,7 @@ public class ClientMain {
         IOuterUserHomeInfo homeInfo = new OuterUserHomeInfo();
         IOuterUserBasicInfo basicInfo = new OuterUserBasicInfo();
         IUserInfo userInfo1 = new UserInfo(basicInfo,homeInfo,officeInfo);
-        System.out.println(userInfo.getUserName());
-        System.out.println(userInfo.getJobPosition());
+        System.out.println(userInfo1.getUserName());
+        System.out.println(userInfo1.getJobPosition());
     }
 }

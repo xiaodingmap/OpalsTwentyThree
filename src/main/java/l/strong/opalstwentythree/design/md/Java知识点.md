@@ -515,3 +515,13 @@ String list class: class java.util.ArrayList
 Integer list class: class java.util.ArrayList
 ```
 都是擦除泛型之后的运行时结果，所以泛型在运行时，会做类型擦除。
+
+## springmvc
+### 常用的注解
+`@Controller`: 定义控制器类，处理http请求
+`@RequestMapping`: 映射请求URL到处理方法，可以应用在类和方法上
+`@PathVariable`: 绑定URL路径中的变量到方法参数
+`@RequestParam`: 将http请求中的查询参数绑定到控制器方法参数上，可以处理多个查询参数并将它们绑定到方法参数上，也可以将查询参数绑定到复杂对象上
+
+
+
