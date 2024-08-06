@@ -446,3 +446,82 @@ public class OuterClass {
    - 内部类持有外部类的引用，可能会导致内存泄漏，设计时需要避免长生命周期的内部类持有短生命周期的外部类引用
 5. 可读性和维护性
    - 使用内部类可以提高代码的可读性和维护性，但是滥用内部类可能会导致代码复杂化
+## 反射与Class类
+在Java中，Class类和反射提供了在运行时检查和操作类的能力，反射使java具有高度的动态性，可以在运行时获取类的结构（包括类的字段、方法、构造函数等）并
+进行相应操作。
+### Class类
+`Class`类使反射的核心类之一，它表示正在运行的Java程序的类或接口，每个类或接口都会有与之对应的Class对象，通过Class对象，可以获取类的元数据
+获取`Class`对象的三种方式
+1. 通过类名获取
+```java
+Class<?> clazz = String.class; 
+```
+2. 通过对象实例获取
+```java
+String str = "Hello";
+Class<?> clazz = str.getClass(); 
+```
+3. 通过全限定类名获取
+```java
+try {
+        Class<?> clazz = Class.forName("java.lang.String");
+        } catch(ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+```
+## 泛型
+是一种提供类型安全和代码重用性的方法，允许类、接口、和方法操作具有指定类型的对象，而无需指定具体的对象类型。泛型的引入增强了Java语言的灵活性和类型安全
+性，避免许多类型转换为题和潜在的运行时错误。
+
+泛型的主要特性
+
+1. 类型参数化：泛型允许在定义类、接口和方法时使用类型参数，具体类型在使用时指定
+2. 类型安全：在编译时进行类型检查，防止类型转换错误
+3. 代码重用：可以编写更通用代码，提高代码的可重用性。
+
+类型通配符
+- 无界通配符：`？`，表示可以持有任何类型对象
+- 有界通配符：`? extends T`表示类型必须是T或T的子类
+- 下界通配符：`? super T`,表示类型必须是T或者T的父类
+
+泛型的限制
+1. 基本类型不能作为类型参数：不能直接使用基本类型（如`int` `char`）作为泛型参数，需要使用包装类（`Integer`,`Character`）。
+2. 运行时类型擦除：泛型信息在编译后会被擦除，导致在运行时无法获取具体的类型信息。
+3. 静态成员不能使用类型参数：在泛型类中，静态成员不能使用类的类型参数。
+```java
+package l.strong.opalstwentythree.generics;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class TypeErasureExample {
+    public static void main(String[] args) {
+        List<String> stringList = new ArrayList<>();
+        List<Integer> intList = new ArrayList<>();
+
+        System.out.println("String list class: " + stringList.getClass());
+        System.out.println("Integer list class: " + intList.getClass());
+
+        if (stringList.getClass() == intList.getClass()) {
+            System.out.println("Both lists are of the same class due to type erasure.");
+        }
+    }
+}
+```
+String和Integer都是List的泛型具体类型，在运行时，上述打印的：
+```java
+String list class: class java.util.ArrayList
+Integer list class: class java.util.ArrayList
+```
+都是擦除泛型之后的运行时结果，所以泛型在运行时，会做类型擦除。
+
+## springmvc
+### 常用的注解
+`@Controller`: 定义控制器类，处理http请求
+`@RequestMapping`: 映射请求URL到处理方法，可以应用在类和方法上
+`@PathVariable`: 绑定URL路径中的变量到方法参数
+`@RequestParam`: 将http请求中的查询参数绑定到控制器方法参数上，可以处理多个查询参数并将它们绑定到方法参数上，也可以将查询参数绑定到复杂对象上
+
+
+
